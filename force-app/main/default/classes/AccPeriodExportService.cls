@@ -27,7 +27,7 @@ public with sharing class AccPeriodExportService {
     private List<ExportRow> assembleExportRows() {
         List<ExportRow> lstExportRows = new List<ExportRow>();
 
-        for (AggregateResult ar : getAggregateEntries()) {
+        for (AggregateResult ar : getAggregatedEntries()) {
             ExportRow row = new ExportRow();
 
             row.glCode = (String) ar.get('ssfs__GL_Code__c');
@@ -49,7 +49,7 @@ public with sharing class AccPeriodExportService {
             } else if (netAmount < 0) {
                 row.debit = Math.abs(netAmount);
             }
-            
+
             row.exportInformation = getExportInformation(row);
             lstExportRows.add(row);
         }
@@ -76,7 +76,7 @@ public with sharing class AccPeriodExportService {
         return (recordId.length() == 15 || recordId.length() == 18);
     }
 
-    private List<AggregateResult> getAggregateEntries() {
+    private List<AggregateResult> getAggregatedEntries() {
         return [
             SELECT ssfs__GL_Code__c, 
                    CALENDAR_YEAR(ssfs__Date__c) year, CALENDAR_MONTH(ssfs__Date__c) month, DAY_IN_MONTH(ssfs__Date__c) day, 
