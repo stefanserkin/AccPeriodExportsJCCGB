@@ -1,14 +1,28 @@
+/**
+ * AccPeriodExportService provides functionality to retrieve and assemble export rows 
+ * for Journal Entries associated with a specific Accounting Period. It is designed for 
+ * integration with ERP systems, formatting data to reflect net movements (debit or credit) 
+ * within the period.
+ * 
+ * @date 2024
+ */
 public with sharing class AccPeriodExportService {
 
     private static final String TYPE_CREDIT = 'Credit';
     private static final String AP_OBJ_KEY_PREFIX = ssfs__Accounting_Period__c.sObjectType.getDescribe().getKeyPrefix();
-
     @TestVisible
     private static final String INVALID_ID_MESSAGE = 'Invalid Id';
     
     private Id accPeriodId;
     private List<ExportRow> exportRows;
 
+    /**
+     * Constructor for AccPeriodExportService.
+     * Validates the provided Accounting Period Id before initializing the service.
+     * 
+     * @param accPeriodId The Id of the Accounting Period to generate exports for.
+     * @throws AccPeriodExportException if the provided Id is invalid.
+     */
     public AccPeriodExportService(Id accPeriodId) {
         if (isValidId(accPeriodId)) {
             this.accPeriodId = accPeriodId;
@@ -17,6 +31,12 @@ public with sharing class AccPeriodExportService {
         }
     }
 
+    /**
+     * Retrieves the assembled list of ExportRow objects for the Accounting Period.
+     * Ensures the export rows are only assembled once per service instance.
+     * 
+     * @return List of ExportRow objects representing the summarized journal entries.
+     */
     public List<ExportRow> getExportRows() {
         if (exportRows == null) {
             exportRows = assembleExportRows();
@@ -24,6 +44,12 @@ public with sharing class AccPeriodExportService {
         return exportRows;
     }
 
+    /**
+     * Assembles export rows by aggregating journal entries from the database.
+     * Each row summarizes net movement (debit or credit) for a GL Code on a specific date.
+     * 
+     * @return List of ExportRow objects with aggregated data.
+     */
     private List<ExportRow> assembleExportRows() {
         List<ExportRow> lstExportRows = new List<ExportRow>();
 
@@ -39,17 +65,18 @@ public with sharing class AccPeriodExportService {
 
             Decimal totalDebit = (Decimal) ar.get('totalDebit');
             Decimal totalCredit = (Decimal) ar.get('totalCredit');
-            Decimal netAmount = (totalCredit != null ? totalCredit : 0.00) - (totalDebit != null ? totalDebit : 0.00);
+            Decimal netCreditAmount = (totalCredit != null ? totalCredit : 0.00) - (totalDebit != null ? totalDebit : 0.00);
 
-            // Set only the column with a positive net amount (rather than total debit and credit)
+            // Determine if the net amount should be displayed as a debit or credit
             row.debit = 0.00;
             row.credit = 0.00;
-            if (netAmount > 0) {
-                row.credit = netAmount;
-            } else if (netAmount < 0) {
-                row.debit = Math.abs(netAmount);
+            if (netCreditAmount > 0) {
+                row.credit = netCreditAmount;
+            } else if (netCreditAmount < 0) {
+                row.debit = Math.abs(netCreditAmount);
             }
 
+            // Set the export information string
             row.exportInformation = getExportInformation(row);
             lstExportRows.add(row);
         }
@@ -57,6 +84,12 @@ public with sharing class AccPeriodExportService {
         return lstExportRows;
     }
 
+    /**
+     * Generates export information string for each ExportRow.
+     * 
+     * @param row The ExportRow object for which to generate the information.
+     * @return A formatted string representing export information.
+     */
     private static String getExportInformation(ExportRow row) {
         // 'NPSP240130' for 2024-01-30
         String baseString = 'NPSP';
@@ -64,18 +97,41 @@ public with sharing class AccPeriodExportService {
         return baseString + dt.format('yyMMdd');
     }
 
+    /**
+     * Validates if the provided Id is a valid Accounting Period Id.
+     * 
+     * @param recordId The Id to validate.
+     * @return True if the Id is valid and belongs to an Accounting Period, False otherwise.
+     */
     private static Boolean isValidId(String recordId) {
         return isAccountingPeriodId(recordId) && isValidIdLength(recordId);
     }
 
+    /**
+     * Checks if the provided Id matches the key prefix for Accounting Period objects.
+     * 
+     * @param recordId The Id to check.
+     * @return True if the Id starts with the Accounting Period object key prefix, False otherwise.
+     */
     private static Boolean isAccountingPeriodId(String recordId) {
         return String.valueOf(recordId).startsWith(AP_OBJ_KEY_PREFIX);
     }
 
+    /**
+     * Validates the length of the provided Id.
+     * 
+     * @param recordId The Id to validate.
+     * @return True if the Id length is valid (15 or 18 characters), False otherwise.
+     */
     private static Boolean isValidIdLength(String recordId) {
         return (recordId.length() == 15 || recordId.length() == 18);
     }
 
+    /**
+     * Performs a SOQL query to aggregate journal entries by GL Code and date.
+     * 
+     * @return List of AggregateResult representing summarized journal entries.
+     */
     private List<AggregateResult> getAggregatedEntries() {
         return [
             SELECT ssfs__GL_Code__c, 
@@ -88,6 +144,9 @@ public with sharing class AccPeriodExportService {
         ];
     }
 
+    /**
+     * ExportRow class represents a row of data to be exported.
+     */
     public class ExportRow {
         @AuraEnabled
         public String glCode {get; set;}
