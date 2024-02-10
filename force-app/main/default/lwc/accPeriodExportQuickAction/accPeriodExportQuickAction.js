@@ -7,7 +7,7 @@ export default class AccPeriodExportQuickAction extends LightningElement {
     exportRows = [];
 
     columnHeaders = {
-        rowDate: 'Effective Date',
+        rowDate: 'Effective Datetime',
         glCode: 'GL Code',
         debit: 'Debit', 
         credit: 'Credit',
