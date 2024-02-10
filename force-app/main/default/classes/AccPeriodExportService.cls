@@ -83,7 +83,7 @@ public with sharing class AccPeriodExportService {
                    SUM(ssfs__Debit__c) totalDebit, SUM(ssfs__Credit__c) totalCredit
               FROM ssfs__Journal_Entry__c
              WHERE ssfs__Accounting_Period__c = :accPeriodId
-              WITH SYSTEM_MODE
+              WITH USER_MODE
              GROUP BY CALENDAR_YEAR(ssfs__Date__c), CALENDAR_MONTH(ssfs__Date__c), DAY_IN_MONTH(ssfs__Date__c), ssfs__GL_Code__c
         ];
     }
