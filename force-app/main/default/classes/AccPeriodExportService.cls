@@ -49,25 +49,12 @@ public with sharing class AccPeriodExportService {
             } else if (netAmount < 0) {
                 row.debit = Math.abs(netAmount);
             }
-
+            
             row.exportInformation = getExportInformation(row);
-
-            System.debug(row);
             lstExportRows.add(row);
         }
-        return lstExportRows;
-    }
 
-    private List<AggregateResult> getAggregateEntries() {
-        return [
-            SELECT ssfs__GL_Code__c, 
-                   CALENDAR_YEAR(ssfs__Date__c) year, CALENDAR_MONTH(ssfs__Date__c) month, DAY_IN_MONTH(ssfs__Date__c) day, 
-                   SUM(ssfs__Debit__c) totalDebit, SUM(ssfs__Credit__c) totalCredit
-              FROM ssfs__Journal_Entry__c
-             WHERE ssfs__Accounting_Period__c = :accPeriodId
-              WITH SYSTEM_MODE
-             GROUP BY ssfs__GL_Code__c, CALENDAR_YEAR(ssfs__Date__c), CALENDAR_MONTH(ssfs__Date__c), DAY_IN_MONTH(ssfs__Date__c)
-        ];
+        return lstExportRows;
     }
 
     private static String getExportInformation(ExportRow row) {
@@ -87,6 +74,18 @@ public with sharing class AccPeriodExportService {
 
     private static Boolean isValidIdLength(String recordId) {
         return (recordId.length() == 15 || recordId.length() == 18);
+    }
+
+    private List<AggregateResult> getAggregateEntries() {
+        return [
+            SELECT ssfs__GL_Code__c, 
+                   CALENDAR_YEAR(ssfs__Date__c) year, CALENDAR_MONTH(ssfs__Date__c) month, DAY_IN_MONTH(ssfs__Date__c) day, 
+                   SUM(ssfs__Debit__c) totalDebit, SUM(ssfs__Credit__c) totalCredit
+              FROM ssfs__Journal_Entry__c
+             WHERE ssfs__Accounting_Period__c = :accPeriodId
+              WITH SYSTEM_MODE
+             GROUP BY ssfs__GL_Code__c, CALENDAR_YEAR(ssfs__Date__c), CALENDAR_MONTH(ssfs__Date__c), DAY_IN_MONTH(ssfs__Date__c)
+        ];
     }
 
     public class ExportRow {

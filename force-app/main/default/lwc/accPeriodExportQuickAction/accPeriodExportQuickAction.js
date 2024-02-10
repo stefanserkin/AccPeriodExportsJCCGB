@@ -18,13 +18,10 @@ export default class AccPeriodExportQuickAction extends LightningElement {
         if (this.isExecuting) {
             return;
         }
-
         this.isExecuting = true;
-        console.log('::::: recordId --> ', this.recordId);
 
         getExportRows({accPeriodId: this.recordId})
             .then(result => {
-                console.table(result);
                 this.exportRows = result;
                 this.handleExport();
             })
@@ -34,7 +31,6 @@ export default class AccPeriodExportQuickAction extends LightningElement {
     }
 
     handleExport() {
-        console.log('preparing export...');
         exportCSVFile(this.columnHeaders, this.exportRows, 'Accounting Period Export');
     }
 

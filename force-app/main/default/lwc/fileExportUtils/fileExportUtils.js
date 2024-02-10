@@ -6,9 +6,8 @@ export function exportCSVFile(headers, totalData, fileTitle) {
     const result = convertToCSV(jsonObject, headers);
     if (result === null) return;
     const blob = new Blob([result]);
-    const exportedFilename = fileTitle ? fileTitle+'.csv' :'export.csv';
+    const exportedFilename = fileTitle ? fileTitle + '.csv' : 'export.csv';
     if (navigator.msSaveBlob) {
-        console.log('is ms save blob');
         navigator.msSaveBlob(blob, exportedFilename);
     } else {
         const link = window.document.createElement('a');
@@ -40,6 +39,5 @@ function convertToCSV(objArray, headers) {
         })
         str += line + lineDelimiter;
     });
-    console.log("str", str);
     return str;
 }
