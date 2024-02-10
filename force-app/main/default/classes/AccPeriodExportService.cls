@@ -84,7 +84,7 @@ public with sharing class AccPeriodExportService {
               FROM ssfs__Journal_Entry__c
              WHERE ssfs__Accounting_Period__c = :accPeriodId
               WITH SYSTEM_MODE
-             GROUP BY ssfs__GL_Code__c, CALENDAR_YEAR(ssfs__Date__c), CALENDAR_MONTH(ssfs__Date__c), DAY_IN_MONTH(ssfs__Date__c)
+             GROUP BY CALENDAR_YEAR(ssfs__Date__c), CALENDAR_MONTH(ssfs__Date__c), DAY_IN_MONTH(ssfs__Date__c), ssfs__GL_Code__c
         ];
     }
 
