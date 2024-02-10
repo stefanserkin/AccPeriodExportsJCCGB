@@ -7,9 +7,7 @@ public with sharing class AccPeriodExportService {
     private static final String INVALID_ID_MESSAGE = 'Invalid Id';
     
     private Id accPeriodId;
-
     private List<ExportRow> exportRows;
-    private List<ssfs__Journal_Entry__c> journalEntries;
 
     public AccPeriodExportService(Id accPeriodId) {
         if (isValidId(accPeriodId)) {
@@ -21,7 +19,6 @@ public with sharing class AccPeriodExportService {
 
     public List<ExportRow> getExportRows() {
         if (exportRows == null) {
-            // lstExportRows = convertJesToExportRows( getJournalEntries() );
             exportRows = assembleExportRows();
         }
         return exportRows;
@@ -79,45 +76,6 @@ public with sharing class AccPeriodExportService {
         Datetime dt = Datetime.newInstance(row.rowDate.year(), row.rowDate.month(), row.rowDate.day());
         return baseString + dt.format('yyMMdd');
     }
-/*
-    private List<ssfs__Journal_Entry__c> getJournalEntries() {
-        if (journalEntries == null) {
-            journalEntries = [
-                SELECT Id, ssfs__Amount__c, ssfs__Type__c, ssfs__GL_Code__c, ssfs__GL_Account_Name__c
-                  FROM ssfs__Journal_Entry__c
-                 WHERE ssfs__Accounting_Period__c = :accPeriodId
-                  WITH USER_MODE
-            ];
-        }
-        return journalEntries;
-    }
-
-    private List<ExportRow> convertJesToExportRows(
-        List<ssfs__Journal_Entry__c> lstJournalEntries
-    ) {
-        Map<String, Decimal> mapGlNameToNetCredit = new Map<String, Decimal>();
-        for (ssfs__Journal_Entry__c je : lstJournalEntries) {
-            if (!mapGlNameToNetCredit.containsKey(je.ssfs__GL_Code__c)) {
-                mapGlNameToNetCredit.put(je.ssfs__GL_Code__c, 0.00);
-            }
-            Decimal netCreditAmount = je.ssfs__Type__c == TYPE_CREDIT ? je.ssfs__Amount__c : (je.ssfs__Amount__c * -1);
-            mapGlNameToNetCredit.put(
-                je.ssfs__GL_Code__c, 
-                (mapGlNameToNetCredit.get(je.ssfs__GL_Code__c) + netCreditAmount)
-            );
-        }
-        List<ExportRow> lstRowsToReturn = new List<ExportRow>();
-        for (String glCode : mapGlNameToNetCredit.keySet()) {
-            Decimal netCreditAmount = mapGlNameToNetCredit.get(glCode);
-            ExportRow row = new ExportRow();
-            row.glCode = glCode;
-            row.credit = netCreditAmount > 0.00 ? netCreditAmount : 0.00;
-            row.debit  = netCreditAmount < 0.00 ? Math.abs(netCreditAmount) : 0.00;
-            lstRowsToReturn.add(row);
-        }
-        return lstRowsToReturn;
-    }
-    */
 
     private static Boolean isValidId(String recordId) {
         return isAccountingPeriodId(recordId) && isValidIdLength(recordId);
