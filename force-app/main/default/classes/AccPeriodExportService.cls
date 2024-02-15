@@ -9,6 +9,7 @@
 public with sharing class AccPeriodExportService {
 
     private static final String TYPE_CREDIT = 'Credit';
+    private static final String POSTING_STATUS_POSTED = 'Posted';
     private static final String AP_OBJ_KEY_PREFIX = ssfs__Accounting_Period__c.sObjectType.getDescribe().getKeyPrefix();
     @TestVisible
     private static final String INVALID_ID_MESSAGE = 'Invalid Id';
@@ -32,7 +33,7 @@ public with sharing class AccPeriodExportService {
     }
 
     /**
-     * Retrieves the assembled list of ExportRow objects for the Accounting Period.
+     * Retrieve the assembled list of ExportRow objects for the Accounting Period.
      * Ensures the export rows are only assembled once per service instance.
      * 
      * @return List of ExportRow objects representing the summarized journal entries.
@@ -45,7 +46,7 @@ public with sharing class AccPeriodExportService {
     }
 
     /**
-     * Assembles export rows by aggregating journal entries from the database.
+     * Assemble export rows by aggregating journal entries from the database.
      * Each row summarizes net movement (debit or credit) for a GL Code on a specific date.
      * 
      * @return List of ExportRow objects with aggregated data.
@@ -85,7 +86,7 @@ public with sharing class AccPeriodExportService {
     }
 
     /**
-     * Generates export information string for each ExportRow.
+     * Generate export information string for each ExportRow.
      * 
      * @param row The ExportRow object for which to generate the information.
      * @return A formatted string representing export information.
@@ -98,7 +99,7 @@ public with sharing class AccPeriodExportService {
     }
 
     /**
-     * Validates if the provided Id is a valid Accounting Period Id.
+     * Validate an Accounting Period Id.
      * 
      * @param recordId The Id to validate.
      * @return True if the Id is valid and belongs to an Accounting Period, False otherwise.
@@ -108,7 +109,7 @@ public with sharing class AccPeriodExportService {
     }
 
     /**
-     * Checks if the provided Id matches the key prefix for Accounting Period objects.
+     * Check if the provided Id matches the key prefix for Accounting Period objects.
      * 
      * @param recordId The Id to check.
      * @return True if the Id starts with the Accounting Period object key prefix, False otherwise.
@@ -118,7 +119,7 @@ public with sharing class AccPeriodExportService {
     }
 
     /**
-     * Validates the length of the provided Id.
+     * Validate the length of the provided Id.
      * 
      * @param recordId The Id to validate.
      * @return True if the Id length is valid (15 or 18 characters), False otherwise.
@@ -128,7 +129,7 @@ public with sharing class AccPeriodExportService {
     }
 
     /**
-     * Performs a SOQL query to aggregate journal entries by GL Code and date.
+     * Aggregate journal entries by GL Code and date.
      * 
      * @return List of AggregateResult representing summarized journal entries.
      */
@@ -139,13 +140,14 @@ public with sharing class AccPeriodExportService {
                    SUM(ssfs__Debit__c) totalDebit, SUM(ssfs__Credit__c) totalCredit
               FROM ssfs__Journal_Entry__c
              WHERE ssfs__Accounting_Period__c = :accPeriodId
+               AND ssfs__Posting_Status__c != :POSTING_STATUS_POSTED
               WITH USER_MODE
              GROUP BY CALENDAR_YEAR(ssfs__Date__c), CALENDAR_MONTH(ssfs__Date__c), DAY_IN_MONTH(ssfs__Date__c), ssfs__GL_Code__c
         ];
     }
 
     /**
-     * ExportRow class represents a row of data to be exported.
+     * A row of data to be exported.
      */
     public class ExportRow {
         @AuraEnabled
