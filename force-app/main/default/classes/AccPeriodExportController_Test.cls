@@ -17,9 +17,11 @@ private class AccPeriodExportController_Test {
         // 2 GAUs
         List<npsp__General_Accounting_Unit__c> lstGAUs = new List<npsp__General_Accounting_Unit__c>();
         for (Integer i = 0; i < 5; i++) {
+            String name = 'Test GAU ' + String.valueOf(i);
             lstGAUs.add(
                 new npsp__General_Accounting_Unit__c(
-                    Name = 'Test GAU ' + String.valueOf(i),
+                    Name = name,
+                    JCC_GL_Name__c = name,
                     ssfs__GL_Code__c = String.valueOf(Math.random() * 12),
                     npsp__Active__c = true
                 )
