@@ -15,7 +15,7 @@ export default class AccPeriodExportQuickAction extends LightningElement {
 
     // Column headers for the CSV file
     columnHeaders = {
-        rowDate: 'Effective Datetime',
+        rowDate: 'Effective Date',
         glCode: 'GL Code',
         debit: 'Debit', 
         credit: 'Credit',

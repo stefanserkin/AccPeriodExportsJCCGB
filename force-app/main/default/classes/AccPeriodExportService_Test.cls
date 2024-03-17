@@ -19,7 +19,6 @@ private class AccPeriodExportService_Test {
             lstGAUs.add(
                 new npsp__General_Accounting_Unit__c(
                     Name = gauName,
-                    JCC_GL_Name__c = gauName,
                     ssfs__GL_Code__c = String.valueOf(Math.random() * 12),
                     npsp__Active__c = true
                 )

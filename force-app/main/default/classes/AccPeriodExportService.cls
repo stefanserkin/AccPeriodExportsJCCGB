@@ -57,7 +57,7 @@ public with sharing class AccPeriodExportService {
         for (AggregateResult ar : getAggregatedEntries()) {
             ExportRow row = new ExportRow();
 
-            row.glCode = (String) ar.get('ssfs__GL_Code__c');
+            row.glCode = (String) ar.get('glCode');
             row.rowDate = Date.newInstance(
                 (Integer) ar.get('year'), 
                 (Integer) ar.get('month'), 
@@ -135,7 +135,7 @@ public with sharing class AccPeriodExportService {
      */
     private List<AggregateResult> getAggregatedEntries() {
         return [
-            SELECT ssfs__GL_Code__c, 
+            SELECT ssfs__GL_Code__c glCode, 
                    CALENDAR_YEAR(ssfs__Date__c) year, CALENDAR_MONTH(ssfs__Date__c) month, DAY_IN_MONTH(ssfs__Date__c) day, 
                    SUM(ssfs__Debit__c) totalDebit, SUM(ssfs__Credit__c) totalCredit
               FROM ssfs__Journal_Entry__c
